@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+    jid-server:
+        labels:
+            traefik.http.routers.jid-server.tls: true
+            traefik.http.routers.jid-server.tls.certresolver: lecertresolver
+    jid-ui:
+        labels:
+            traefik.http.routers.jid-ui.tls: true
+            traefik.http.routers.jid-ui.tls.certresolver: lecertresolver
+    gateway:
+        command:
+            - --api.dashboard=true
+            - --api.insecure=true
+            - --entrypoints.web.address=:80
+            - --entrypoints.websecure.address=:443
+            - --entrypoints.web.http.redirections.entryPoint.to=websecure  
+            - --entrypoints.web.http.redirections.entryPoint.scheme=https
+            - --entrypoints.web.http.redirections.entrypoint.permanent=true
+            - --providers.docker.exposedbydefault=false
+            - --providers.docker=true
+            - --certificatesresolvers.lecertresolver.acme.email=${LETS_ENCRYPT_EMAIL}
+            - --certificatesresolvers.lecertresolver.acme.storage=acme.json
+            - --certificatesresolvers.lecertresolver.acme.httpchallenge=true
+            - --certificatesresolvers.lecertresolver.acme.httpchallenge.entrypoint=web
+        ports:
+            - "443:443"
