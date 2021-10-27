@@ -24,7 +24,7 @@ services:
             traefik.http.routers.jid-ui.rule: Host(`${UI_SERVER_DOMAIN}`)
             traefik.http.services.jid-ui.loadbalancer.server.port: 80
         environment:
-            - API_SERVER=${API_SERVER_URL}
+            - REACT_APP_API_URL=${API_SERVER_URL}
     gateway:
         image: traefik:v2.5
         depends_on:
