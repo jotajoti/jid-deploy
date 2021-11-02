@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
     jid-server:
-        image: jotajoti/jid-server:latest
+        image: ghcr.io/jotajoti/jid-server:latest
         ports:
             - "8080"
         labels:
