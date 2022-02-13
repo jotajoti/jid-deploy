@@ -1,49 +1,33 @@
-version: "3.9"
-
+version: "3.8"
 services:
-    jid-server:
-        image: ghcr.io/jotajoti/jid-server:latest
-        ports:
-            - "8080"
-        labels:
-            traefik.enable: "true"
-            traefik.http.routers.jid-server.entrypoints: web
-            traefik.http.routers.jid-server.rule: PathPrefix(`/api`)
-            traefik.http.services.jid-server.loadbalancer.server.port: 8080
-        environment:
-            - database=/usr/src/app/data/jiddata.db
-        volumes:
-            - ./data/:/usr/src/app/data/
-    jid-ui:
-        image: jotajoti/jid-ui:latest
-        ports:
-            - "80"
-        labels:
-            traefik.enable: "true"
-            traefik.http.routers.jid-ui.entrypoints: web
-            traefik.http.routers.jid-ui.rule: Host(`${UI_SERVER_DOMAIN}`)
-            traefik.http.services.jid-ui.loadbalancer.server.port: 80
-        environment:
-            - REACT_APP_API_URL=${API_SERVER_URL}
-    gateway:
-        image: traefik:v2.6
-        depends_on:
-            - jid-server
-            - jid-ui
-        # Enables the web UI and tells Traefik to listen to docker
-        command:
-            - --api.dashboard=true
-            - --api.insecure=true
-            - --entrypoints.web.address=:80
-            - --entrypoints.websecure.address=:443
-            - --providers.docker.exposedbydefault=false
-            - --providers.docker=true
-        ports:
-            # The HTTP port
-            - "80:80"
-            # The Web UI (enabled by --api.insecure=true)
-            - "8080:8080"
-        volumes:
-            # So that Traefik can listen to the Docker events
-            - /var/run/docker.sock:/var/run/docker.sock
-            
+  traefik:
+    image: traefik:2.6
+    container_name: traefik
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  jid-server:
+    image: ghcr.io/jotajoti/jid-server:latest
+    container_name: jid-server
+    ports:
+      - 8081:8080
+    environment:
+      database: /usr/src/app/data/jiddata.db
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jid-server.rule: Host(`${SERVER_DOMAIN}`) && PathPrefix(`/api`)
+    volumes:
+      - ./data/:/usr/src/app/data/
+  jid-ui:
+    image: jotajoti/jid-ui:latest
+    ports:
+      - 80
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jid-ui.rule: Host(`${SERVER_DOMAIN}`)
+    environment:
+      - REACT_APP_API_URL=${API_SERVER_URL}
