@@ -15,4 +15,4 @@ jobs:
           username: ${{ secrets.ORACLE_CLOUD_USER }}
           key: ${{ secrets.ORACLE_CLOUD_KEY }}
           port: ${{ secrets.ORACLE_CLOUD_PORT }}
-          script: sudo docker pull
+          script: cd workspace && sudo docker compose pull
