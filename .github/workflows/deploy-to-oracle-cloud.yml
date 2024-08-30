@@ -1,0 +1,18 @@
+name: Deploy to Oracle Cloud
+
+on:
+  workflow_dispatch
+
+jobs:
+  docker-pull:
+    name: Docker Pull
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull latest images
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_CLOUD_HOST }}
+          username: ${{ secrets.ORACLE_CLOUD_USER }}
+          key: ${{ secrets.ORACLE_CLOUD_KEY }}
+          port: ${{ secrets.ORACLE_CLOUD_PORT }}
+          script: sudo docker pull
